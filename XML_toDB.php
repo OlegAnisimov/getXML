@@ -195,63 +195,6 @@ foreach ($xml_files_list as $region_key => $region_arr) // first level  [$region
     // clean results array for contact info
 }
 
-/* create tables * */
-db_connection(); // create DB PDO connection with call func from "functions_DB.php"
-$tbl_title_region = "regions"; // table title. Table with title region and id
-$sql_create_regions = "CREATE TABLE $tbl_title_region 
-                                (
-                                Id INT PRIMARY KEY AUTO_INCREMENT,
-                                RegionTitle VARCHAR(100) NOT NULL
-                                )";
-$table_customers_title = "customers";
-$sql_create_customers = "CREATE TABLE $table_customers_title
-                                (
-                                Id INT PRIMARY KEY AUTO_INCREMENT,
-                                OrgName     VARCHAR(250) NOT NULL,  
-                                Phone       VARCHAR(50) NOT NULL,
-                                Email       VARCHAR(50) NOT NULL,
-                                Zip       VARCHAR(6) NOT NULL,
-                                RegionId    INT,
-                                CONSTRAINT FOREIGN KEY (RegionId) REFERENCES $tbl_title_region(Id)
-                                )";
-$table_orders_title = "orders"; // create title for orders table
-$sql_create_orders = "CREATE TABLE $table_orders_title
-                                (
-                                    Id INT PRIMARY KEY AUTO_INCREMENT,
-                                    CustomerId INT,
-                                    TitleOrder VARCHAR(250),
-                                    CONSTRAINT FOREIGN KEY (CustomerId) REFERENCES $table_customers_title(Id)
-                                   
-                                )";
-$table_fio_title = "fio";
-$sql_create_customer_fio = "CREATE TABLE $table_fio_title
-                                    (
-                                        Id         INT PRIMARY KEY AUTO_INCREMENT,
-                                        FirstName  VARCHAR(30) NOT NULL,
-                                        MiddleName VARCHAR(30) NOT NULL,
-                                        LastName   VARCHAR(20) NOT NULL,
-                                        Pos        VARCHAR(50) NOT NULL,  
-                                        CustomerId INT,
-                                        CONSTRAINT FOREIGN KEY (CustomerId) REFERENCES $table_customers_title(Id) 
-                                     )";
-
-// Service tables
-$table_ZIP_mask_region = "ZIP_maskReg";
-$sql_create_ZIP_maskReg = "CREATE TABLE $table_ZIP_mask_region 
-                                    (
-                                         Id INT PRIMARY KEY AUTO_INCREMENT,
-                                         ZIPMask VARCHAR(3) NOT NULL,
-                                         RegionId INT,
-                                          CONSTRAINT FOREIGN KEY (RegionId) REFERENCES $tbl_title_region(Id)
-                                )";
-
-// run sql crete tables
-//$db_conn->query($sql_create_regions); // create table regions
-//$db_conn->query($sql_create_customers);
-//$db_conn->query($sql_create_customer_fio);
-//$db_conn->query($sql_create_orders);
-//$db_conn->query($sql_create_ZIP_maskReg);
-
 foreach ($all_region_xml_value as $region => $region_content) {
     // insert to regions table
     $sql_regions = "INSERT INTO $tbl_title_region (RegionTitle) VALUES ('$region')";
@@ -262,8 +205,6 @@ foreach ($all_region_xml_value as $region => $region_content) {
         // get arrays with emails and phones
         $test_email = $region_content[$customer_title]["contacts"]["email"];
         $test_phone = $region_content[$customer_title]["contacts"]["phone"];
-
-
         // Get Zip code of customer
         $forZip = $region_content[$customer_title]["contacts"]["address"]; // get array content string with full address customer
         // iterate arrays with full address to get zip value
@@ -280,7 +221,7 @@ foreach ($all_region_xml_value as $region => $region_content) {
 
         // iterate arrays with emails and phones
         foreach ($test_phone as $arr => $phone_num)
-            foreach ($test_email as $arr => $email_value)
+        foreach ($test_email as $arr => $email_value)
 
                 // INSERT INTO ZIP_maskReg
 //         $sqlInsertZIP_maskReg = "INSERT INTO $table_ZIP_mask_region (ZIPMask, RegionId) VALUES ('$uniqueZipMask', '$last_insert_id_reg')";
@@ -297,9 +238,9 @@ VALUES ('$customer_title', '$phone_num', '$email_value', '$zipResult', '$last_in
         $fio_pos = $region_content[$customer_title]["contacts"]["fio"]["position"];
         // iterate arrays with fio info
         foreach ($fio_firstName as $arr => $firstName_val)
-            foreach ($fio_midName as $arr => $midName_val)
-                foreach ($fio_lastName as $arr => $lastName_val)
-                    foreach ($fio_pos as $arr => $pos_val)
+        foreach ($fio_midName as $arr => $midName_val)
+        foreach ($fio_lastName as $arr => $lastName_val)
+        foreach ($fio_pos as $arr => $pos_val)
                         $sql_fio = "INSERT INTO $table_fio_title (FirstName, MiddleName, LastName, Pos, CustomerId)
                                     VALUES ('$firstName_val', '$midName_val', '$lastName_val', '$pos_val', '$last_insert_id_customer')";
 //        $db_conn->query($sql_fio); // run sql query
@@ -314,7 +255,6 @@ VALUES ('$customer_title', '$phone_num', '$email_value', '$zipResult', '$last_in
     }
 }
 $db_conn = null; // kill db connection
-
 $end_time = time(); // kill timer
 $time = $end_time - $start_time; // count execution time
 // display execution time
